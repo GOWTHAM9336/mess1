@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GOWTHAM MESS</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+<body>
+
+    <!-- LOGIN / SIGN UP GATE -->
+
+<div id="login-popup" class="login-popup">
+
+    <div class="login-box">
+
+        <h1>🍴 Gowtham Mess</h1>
+
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="tab-login-btn" onclick="showAuthTab('login')">Login</button>
+            <button type="button" class="auth-tab" id="tab-signup-btn" onclick="showAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="login-form" class="auth-form">
+
+            <p>Welcome Back</p>
+
+            <input type="text" id="login-identifier" placeholder="Username (or Email)">
+            <input type="password" id="login-password" placeholder="Password">
+
+            <div id="login-error" class="auth-error"></div>
+
+            <button onclick="loginUser()">Login</button>
+
+        </div>
+
+        <!-- SIGN UP FORM -->
+        <div id="signup-form" class="auth-form" style="display:none;">
+
+            <p>Create Your Account</p>
+
+            <input type="text" id="signup-fullname" placeholder="Full Name">
+            <input type="email" id="signup-email" placeholder="Email">
+            <input type="tel" id="signup-phone" placeholder="Phone Number">
+            <input type="password" id="signup-password" placeholder="Password">
+            <input type="password" id="signup-confirm-password" placeholder="Confirm Password">
+
+            <div id="signup-error" class="auth-error"></div>
+
+            <button onclick="signupUser()">Sign Up</button>
+
+        </div>
+
+    </div>
+
+    <div class="floating-food food1">🍕</div>
+<div class="floating-food food2">🍔</div>
+<div class="floating-food food3">🍜</div>
+<div class="floating-food food4">🍹</div>
+
+</div>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+        <div class="nav-top">
+
+            <!-- LEFT LOGO + NAME -->
+            <div class="logo-container">
+                <img src="logo.jpeg" alt="MGPK Logo" class="nav-logo">
+                <span class="brand">GOWTHAM MESS</span>
+            </div>
+
+   
+
+    <div class="nav-icons">
+
+        <button class="user-btn" onclick="openProfile()">
+
+    <i class="fas fa-user-circle"></i>
+
+    <span id="user-name">
+        Guest
+    </span>
+
+</button>
+
+ <button onclick="toggleCart()" class="cart-btn">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+        </button>
+
+        
+
+<button onclick="logoutUser()" class="logout-btn">
+
+    <i class="fas fa-sign-out-alt"></i>
+
+</button>
+
+
+    </div>
+
+
+</header>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="overlay">
+
+        <h1>Traditional South Indian Food</h1>
+
+        <p>Fresh • Healthy • Tasty</p>
+       <p>By P. Manimalan & M. Kalaivani</p>
+
+        <button onclick="scrollMenu()">Order Now</button>
+
+    </div>
+
+</section>
+
+<!-- CONTACT SECTION -->
+
+<section class="contact-section">
+
+    <div class="contact-box">
+
+        <div class="contact-item">
+            <i class="fas fa-phone-alt"></i>
+            <span>+91 9080149926</span>
+        </div>
+
+        <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>gowthammessofficail@gmail.com</span>
+        </div>
+
+        <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Thippasamuthiram, vellore</span>
+        </div>
+        <div class="map-container">
+
+    <iframe
+        src="https://www.google.com/maps?q=12.8622373,78.9118274&hl=es;z=14&output=embed"
+        width="100%"
+        height="350"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy">
+    </iframe>
+
+</div>
+
+    </div>
+
+</section>
+
+<!-- FLOATING CALL & WHATSAPP -->
+
+<div class="floating-icons" id="floating-icons" style="display:none;">
+
+    <a href="tel:+919080149926" class="float-btn call-btn">
+        <i class="fas fa-phone-alt"></i>
+    </a>
+
+    <a href="https://wa.me/919080149926" target="_blank" class="float-btn whatsapp-btn">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+</div>
+
+<!-- CATEGORY -->
+
+<section class="category-section">
+
+    <div class="category" onclick="showAllMenu()">
+    All Food
+</div>
+
+    <div class="category" onclick="showMenu('morning')">
+        Morning
+    </div>
+
+    <div class="category" onclick="showMenu('afternoon')">
+        Afternoon
+    </div>
+
+    <div class="category" onclick="showMenu('evening')">
+        Evening
+    </div>
+
+    <div class="category" onclick="showMenu('night')">
+        Night
+    </div>
+
+</section>
+
+<div class="search-section">
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="🔍 Search Idly, Dosa, Biryani..."
+        oninput="searchMenu()"
+    >
+
+</div>
+
+<!-- MENU -->
+
+<section id="menu">
+
+    <h2 class="title">OUR MENU</h2>
+
+    <!-- MORNING -->
+<div class="menu-box menu-category" id="morning">
+
+        <h3>🌞 MORNING</h3>
+
+        <div class="menu-grid">
+
+            <div class="card">
+                <h4>Idly</h4>
+                <p>₹30</p>
+                <button onclick="addToCart('Idly',30)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Dosa</h4>
+                <p>₹40</p>
+                <button onclick="addToCart('Dosa',40)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Onion Dosa</h4>
+                <p>₹60</p>
+                <button onclick="addToCart('Onion Dosa',60)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Poori</h4>
+                <p>₹50</p>
+                <button onclick="addToCart('Poori',50)">Add</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- AFTERNOON -->
+<div class="menu-box menu-category" id="afternoon">
+
+        <h3>🍛 AFTERNOON</h3>
+
+        <div class="menu-grid">
+
+            <div class="card">
+                <h4>Meals</h4>
+                <p>₹120</p>
+                <button onclick="addToCart('Meals',120)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Chicken Biryani</h4>
+                <p>₹180</p>
+                <button onclick="addToCart('Chicken Biryani',180)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Tomato Rice</h4>
+                <p>₹100</p>
+                <button onclick="addToCart('Tomato Rice',100)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Curd Rice</h4>
+                <p>₹80</p>
+                <button onclick="addToCart('Curd Rice',80)">Add</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EVENING -->
+
+   <div class="menu-box menu-category" id="evening">
+
+        <h3>☕ EVENING</h3>
+
+        <div class="menu-grid">
+
+            <div class="card">
+                <h4>Egg Puff</h4>
+                <p>₹25</p>
+                <button onclick="addToCart('Egg Puff',25)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Tea</h4>
+                <p>₹15</p>
+                <button onclick="addToCart('Tea',15)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Coffee</h4>
+                <p>₹20</p>
+                <button onclick="addToCart('Coffee',20)">Add</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- NIGHT -->
+
+<div class="menu-box menu-category" id="night">
+
+        <h3>🌙 NIGHT</h3>
+
+        <div class="menu-grid">
+
+            <div class="card">
+                <h4>Parotta</h4>
+                <p>₹15</p>
+                <button onclick="addToCart('Parotta',15)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Kothu Parotta</h4>
+                <p>₹80</p>
+                <button onclick="addToCart('Kothu Parotta',80)">Add</button>
+            </div>
+
+            <div class="card">
+                <h4>Shawarma</h4>
+                <p>₹60</p>
+                <button onclick="addToCart('Shawarma',60)">Add</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- DELIVERY -->
+
+<!-- DELIVERY -->
+
+<section class="delivery">
+
+    <h2>Delivery Details</h2>
+
+    <div class="delivery-form">
+
+        <input
+            type="text"
+            id="name"
+            placeholder="Enter Name"
+            required
+        >
+
+        <input
+            type="text"
+            id="phone"
+            placeholder="Mobile Number"
+            required
+        >
+
+        <input
+            type="email"
+            id="user_email"
+            placeholder="Enter Email ID"
+            required
+        >
+
+        <select id="deliveryType">
+
+            <option>Table Delivery</option>
+            <option>Home Delivery</option>
+
+        </select>
+
+        <textarea
+            id="address"
+            placeholder="Enter Address or Table Number"
+        ></textarea>
+
+        <button type="button" onclick="placeOrder()">
+            Save Delivery Details
+        </button>
+
+    </div>
+
+</section>
+
+<!-- CART -->
+
+<div id="cart" class="cart">
+
+   <div class="cart-header">
+
+    <button class="menu-toggle" onclick="toggleOrderMenu()">
+        ☰
+    </button>
+        
+
+        <h3>Your Order</h3>
+
+    
+
+    <button onclick="toggleCart()"
+    class="close-cart-btn">
+        ✕
+    </button>
+
+</div>
+
+   
+
+    <div class="cart-footer">
+ <h1><center>cart-items</center></h1>
+        <ul id="cart-items"></ul>
+
+      
+
+<!-- PAYMENT SECTION -->
+
+<div class="payment-section">
+
+    <h3>Select Payment Method</h3>
+
+    <div class="payment-options">
+
+        <!-- CASH -->
+
+        <label class="payment-card">
+
+            <input type="radio"
+            name="payment"
+            value="Cash"
+            checked>
+
+            💵 Cash
+
+        </label>
+
+        <!-- CARD -->
+
+       <label class="payment-card">
+    <input
+        type="radio"
+        name="payment"
+        value="Online"
+        onclick="payNow()"
+    >
+    💳 Card
+</label>
+
+        <!-- QR PAYMENT -->
+
+        <label class="payment-card">
+
+            <input type="radio"
+            name="payment"
+            value="UPI"
+            onclick="showQR()">
+
+            📱 UPI / QR
+
+        </label>
+
+    </div>
+
+    <!-- ORDER MENU SIDEBAR -->
+
+<div id="order-menu" class="order-menu">
+
+    <div class="menu-header">
+        <h2>☰ Order Menu</h2>
+    </div>
+
+    <div onclick="showOrderDetails()">
+        📦 Order Details
+    </div>
+
+     <div onclick="showTracking()">
+        🛵 Order Tracking
+    </div>
+
+    <div onclick="showDeliveryStatus()">
+        🚚 Delivery Status
+    </div>
+
+
+    <div onclick="showPaymentDetails()">
+        💳 Payment Details
+    </div>
+
+   
+
+</div>
+
+<div id="orderDetailsPopup" class="popup-box">
+
+    <div class="popup-content">
+
+        <h2>📦 Order Details</h2>
+
+        <p><b>User Name:</b></p>
+        <p id="orderUser"></p>
+
+        <p><b>Phone Number:</b></p>
+        <p id="orderPhone"></p>
+
+        <p><b>Delivery Address:</b></p>
+        <p id="orderAddress"></p>
+
+        <hr>
+
+        <h3>🛒 Ordered Items</h3>
+
+        <div id="orderItems"></div>
+
+        <p>
+            <b>Total:</b> ₹<span id="orderTotal">0</span>
+        </p>
+
+        <button onclick="closePopup('orderDetailsPopup')">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ORDER TRACKING POPUP -->
+
+<div id="trackingPopup" class="popup-box">
+
+    <div class="popup-content">
+
+        <h2>🛵 Order Tracking</h2>
+
+        <div class="delivery-status">
+
+            <div class="status-item active">
+                ✅ Order Confirmed
+            </div>
+
+            <div class="status-item" id="track2">
+                👨‍🍳 Preparing Food
+            </div>
+
+            <div class="status-item" id="track3">
+                🚚 Out For Delivery
+            </div>
+
+            <div class="status-item" id="track4">
+                🎉 Delivered
+            </div>
+
+        </div>
+
+        <button onclick="startTracking()">
+            Start Tracking
+        </button>
+
+        <button onclick="closePopup('trackingPopup')">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+<div id="deliveryStatusPopup" class="popup-box">
+
+<div class="popup-content">
+
+<h2>🚚 Delivery Status</h2>
+
+<div class="delivery-status">
+
+<div class="status-item active">
+🛒 Order Placed
+</div>
+
+<div class="status-item active">
+👨‍🍳 Food Preparing
+</div>
+
+<div class="status-item">
+🚚 Out For Delivery
+</div>
+
+<div class="status-item">
+✅ Delivered
+</div>
+
+</div>
+
+<button onclick="closePopup('deliveryStatusPopup')">
+Close
+</button>
+
+</div>
+
+</div>
+
+<div id="paymentDetailsPopup" class="popup-box">
+
+<div class="popup-content">
+
+<h2>💳 Payment Details</h2>
+
+<p><b>User Name:</b></p>
+<p id="paymentUser"></p>
+
+<p><b>Total Amount:</b></p>
+<p>₹<span id="paymentTotal"></span></p>
+
+<p><b>Payment Method:</b></p>
+<p id="paymentMethod"></p>
+
+<button onclick="closePopup('paymentDetailsPopup')">
+Close
+</button>
+
+</div>
+
+</div>
+
+
+    <div id="qr-box" class="qr-box">
+
+    <div id="qrcode"></div>
+
+    <h2 class="qr-total">
+        Pay ₹<span id="qr-amount">0</span>
+    </h2>
+
+    <p>📱 Scan & Pay</p>
+
+    <input
+        type="text"
+        id="transaction-id"
+        placeholder="Enter Transaction ID"
+    >
+
+</div>
+
+        <!-- DIRECT PAYMENT APPS -->
+
+        <div class="payment-apps">
+
+            <div class="payment-title-box">
+
+    <h1 class="payment-main-title">
+
+        ⚡ Instant Secure⚡ <br> 
+        <center>Payment </center>
+
+    </h1>
+
+
+
+</div>
+
+            <!-- PAYTM -->
+
+            <button class="upi-btn paytm-btn"
+            onclick="payWithPaytm()">
+
+                Paytm
+
+            </button>
+
+            <!-- GOOGLE PAY -->
+
+            <button class="upi-btn gpay-btn"
+            onclick="payWithGpay()">
+
+                Google Pay
+
+            </button>
+
+            <!-- PHONEPE -->
+
+            <button class="upi-btn phonepe-btn"
+            onclick="payWithPhonepe()">
+
+                PhonePe
+
+            </button>
+            
+
+            <p class="payment-subtitle">
+
+        Fast • Safe • Smart Payment
+
+    </p>
+
+    <!-- COUPON -->
+
+    <div class="coupon-box">
+        <input type="text" id="coupon-code" placeholder="Coupon code">
+        <button onclick="applyCoupon()">Apply</button>
+    </div>
+
+    <div id="coupon-message" class="coupon-message"></div>
+
+    <div class="total-breakdown">
+
+        <p class="subtotal-row">Subtotal: ₹<span id="total">0</span></p>
+
+        <p class="discount-row" id="discount-row" style="display:none;">
+            <span>Discount (<span id="discount-code-label"></span>)</span>
+            <span>− ₹<span id="discount-amount">0</span></span>
+        </p>
+
+        <h3>Total ₹<span id="payable-total">0</span></h3>
+
+    </div>
+
+    <button onclick="showBill()" class="bill-btn">
+        View Bill
+    </button>
+
+    <button onclick="checkout()" class="checkout-btn">
+        Send Bill
+    </button>
+
+    <button onclick="sendEmail()" class="email-btn">
+        Send Email Bill
+    </button>
+
+    <button onclick="confirmOrder()" class="confirm-btn">
+
+    Confirm Your Order
+
+</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+    
+
+</div>
+
+</div>
+
+<!-- BILL POPUP -->
+
+<div id="bill-popup" class="bill-popup">
+
+    <div class="bill-box">
+
+       <div class="bill-header">
+
+    <!-- TOP RIGHT X BUTTON -->
+
+    <button class="bill-close-icon" onclick="closeBill()">
+        ×
+    </button>
+
+    <h1>🍲 Gowtham Mess</h1>
+
+    <p>Traditional South Indian Foods</p>
+
+</div>
+<div class="bill-details">
+
+    <p><b>Order No:</b> <span id="bill-order-no"></span></p>
+
+    <p><b>Date:</b> <span id="bill-date"></span></p>
+
+    <p><b>Customer:</b> <span id="bill-customer"></span></p>
+
+</div>
+
+        <table class="bill-table">
+
+            <thead>
+
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="bill-items">
+
+            </tbody>
+
+        </table>
+
+        <h2 class="bill-total">
+            Total: ₹<span id="bill-total">0</span>
+        </h2>
+
+        <p class="thank-you">
+            ❤️ Thank You Visit Again ❤️
+        </p>
+
+        <button onclick="printBill()" class="print-btn">
+            Print Bill
+        </button>
+
+        <button onclick="closeBill()" class="close-btn">
+            Close
+        </button>
+
+    </div>
+
+</div>
+<!-- PAYMENT SUCCESS POPUP -->
+
+<!-- <div id="payment-popup" class="payment-popup">
+
+    <div class="payment-success-box">
+
+        <div class="success-circle">
+
+            <i class="fas fa-check"></i>
+
+        </div>
+
+        <h1>Payment Successful</h1>
+
+        <p>
+            Your Order Has Been Confirmed
+        </p>
+
+        <div class="success-animation">
+
+            🍕 🍔 🍜 ☕ 🍛
+
+        </div>
+
+        <button onclick="closePaymentPopup()">
+
+            Continue Ordering
+
+        </button>
+
+    </div>
+
+</div>  -->
+
+<!-- ORDER SUCCESS POPUP -->
+
+<div id="order-success-popup"
+class="order-success-popup">
+
+    <div class="order-success-box">
+
+        
+        <div class="success-circle">
+
+            <i class="fas fa-check"></i>
+
+        </div>
+
+        <h1 id="success-user">
+
+            Order Successful
+
+        </h1>
+
+        <p>
+            Your Order Has Been Confirmed
+        </p>
+         <p>
+             <B> 📧 CHECK YOUR EMAIL 📩</B>
+        </p>
+
+        <div class="food-scroll">
+
+            🍕 🍔 🍟 🍜 ☕ 🍛 🍗 🍦 🍩
+
+        </div>
+
+        <button onclick="closeSuccessPopup()">
+
+            Continue Shopping
+
+        </button>
+
+    </div>
+
+</div> 
+
+<!-- PROFILE MODAL -->
+
+<div id="profile-modal" class="profile-modal">
+
+    <div class="profile-box">
+
+        <button class="profile-close" onclick="closeProfile()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+
+        <!-- VIEW MODE -->
+        <div id="profile-view">
+
+            <div class="profile-field">
+                <span class="profile-label">Full Name</span>
+                <span class="profile-value" id="profile-view-name">—</span>
+            </div>
+
+            <div class="profile-field">
+                <span class="profile-label">Email</span>
+                <span class="profile-value" id="profile-view-email">—</span>
+            </div>
+
+            <div class="profile-field">
+                <span class="profile-label">Phone Number</span>
+                <span class="profile-value" id="profile-view-phone">—</span>
+            </div>
+
+            <div class="profile-field">
+                <span class="profile-label">Password</span>
+                <span class="profile-value">••••••••</span>
+            </div>
+
+            <div class="profile-actions">
+                <button onclick="toggleEditProfile(true)">✏️ Edit Profile</button>
+                <button onclick="toggleChangePassword(true)">🔒 Change Password</button>
+                <button class="profile-logout" onclick="logoutUser()">Logout</button>
+            </div>
+
+        </div>
+
+        <!-- EDIT PROFILE MODE -->
+        <div id="profile-edit" style="display:none;">
+
+            <input type="text" id="edit-fullname" placeholder="Full Name">
+            <input type="email" id="edit-email" placeholder="Email">
+            <input type="tel" id="edit-phone" placeholder="Phone Number">
+
+            <div id="profile-edit-error" class="auth-error"></div>
+
+            <div class="profile-actions">
+                <button onclick="saveProfile()">Save</button>
+                <button class="profile-cancel" onclick="toggleEditProfile(false)">Cancel</button>
+            </div>
+
+        </div>
+
+        <!-- CHANGE PASSWORD MODE -->
+        <div id="profile-password" style="display:none;">
+
+            <input type="password" id="current-password" placeholder="Current Password">
+            <input type="password" id="new-password" placeholder="New Password">
+            <input type="password" id="confirm-new-password" placeholder="Confirm New Password">
+
+            <div id="profile-password-error" class="auth-error"></div>
+
+            <div class="profile-actions">
+                <button onclick="submitChangePassword()">Save Password</button>
+                <button class="profile-cancel" onclick="toggleChangePassword(false)">Cancel</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+emailjs.init("DXxPS-NccPFSNP0ZB");
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>

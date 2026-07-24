@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gowtham Mess — Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #fbf6ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    p { color: #2a2620; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<p id="status">Opening payment window…</p>
+
+<script>
+  // This page is opened inside a WebView by the React Native app. It never sees
+  // your secret key — the order was already created server-side. It just launches
+  // Razorpay's checkout with the order_id it's given, then reports the result back
+  // to the app via window.ReactNativeWebView.postMessage.
+
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  function postToApp(payload) {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify(payload));
+    }
+  }
+
+  var options = {
+    key: getParam("key"),
+    amount: getParam("amount"),
+    currency: getParam("currency") || "INR",
+    order_id: getParam("order_id"),
+    name: "GOWTHAM MESS",
+    description: "Food Order Payment",
+    prefill: {
+      name: getParam("name") || "",
+      contact: getParam("contact") || "",
+      email: getParam("email") || ""
+    },
+    theme: { color: "#28a745" },
+    handler: function (response) {
+      document.getElementById("status").innerText = "Payment complete. Returning to app…";
+      postToApp({
+        status: "success",
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature
+      });
+    },
+    modal: {
+      ondismiss: function () {
+        document.getElementById("status").innerText = "Payment cancelled. Returning to app…";
+        postToApp({ status: "cancelled" });
+      }
+    }
+  };
+
+  var rzp = new Razorpay(options);
+
+  rzp.on("payment.failed", function (response) {
+    postToApp({ status: "failed", error: response.error });
+  });
+
+  rzp.open();
+</script>
+
+</body>
+</html>

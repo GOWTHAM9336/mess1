@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gowtham Mess — Order Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --leaf: #2f5233;
+    --leaf-dark: #1d3620;
+    --cream: #fbf6ec;
+    --clay: #c96f34;
+    --clay-dark: #a2551f;
+    --ink: #2a2620;
+    --paid: #2f7d4f;
+    --pending: #b5761c;
+    --border: #e4dcc8;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--cream);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+  }
+  header{
+    background: var(--leaf);
+    color: var(--cream);
+    padding: 22px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1{
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    margin:0;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  header .tag{
+    font-size: 0.8rem;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  #refresh-btn{
+    background: var(--clay);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  #refresh-btn:hover{ background: var(--clay-dark); }
+
+  main{
+    max-width: 1080px;
+    margin: 28px auto;
+    padding: 0 20px 60px;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card{
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .stat-card .label{
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a8270;
+  }
+  .stat-card .value{
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    color: var(--leaf-dark);
+    margin-top: 4px;
+  }
+
+  .order-card{
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .order-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    cursor: pointer;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .order-head:hover{ background: #faf7ef; }
+  .order-id{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--leaf-dark);
+  }
+  .order-meta{
+    font-size: 0.85rem;
+    color: #6b6455;
+  }
+  .badge{
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.paid{ background: rgba(47,125,79,0.12); color: var(--paid); }
+  .badge.pending{ background: rgba(181,118,28,0.14); color: var(--pending); }
+  .order-total{
+    font-weight: 700;
+    color: var(--clay-dark);
+    font-size: 1.05rem;
+  }
+  .order-body{
+    display:none;
+    padding: 0 18px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .order-body.open{ display:block; }
+  .order-body table{
+    width:100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.9rem;
+  }
+  .order-body th, .order-body td{
+    text-align:left;
+    padding: 6px 4px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .order-body .detail-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px 20px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+  }
+  .order-body .detail-grid b{ color: var(--leaf-dark); }
+
+  #empty, #loading, #error{
+    text-align:center;
+    padding: 60px 20px;
+    color: #8a8270;
+  }
+  #error{ color: #b3402c; }
+
+  /* TABS */
+  .tabs{
+    max-width: 1080px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+    display:flex;
+    gap: 10px;
+  }
+  .tab-btn{
+    background: white;
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .tab-btn.active{
+    background: var(--leaf);
+    color: white;
+    border-color: var(--leaf);
+  }
+
+  /* COUPON FORM */
+  .coupon-form-card{
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .coupon-form-card h3{
+    margin: 0 0 14px;
+    font-family: 'Fraunces', serif;
+    color: var(--leaf-dark);
+  }
+  .coupon-form-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .coupon-form-grid input,
+  .coupon-form-grid select{
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .coupon-form-card button{
+    margin-top: 14px;
+    background: var(--clay);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .coupon-form-card button:hover{ background: var(--clay-dark); }
+  .form-error{
+    color: #b3402c;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    display:none;
+  }
+
+  /* COUPON LIST */
+  .coupon-card{
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .coupon-card-main{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .coupon-code{
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--leaf-dark);
+    letter-spacing: 0.03em;
+  }
+  .coupon-meta{
+    font-size: 0.82rem;
+    color: #6b6455;
+    margin-top: 2px;
+  }
+  .coupon-card-actions{
+    margin-top: 12px;
+    display:flex;
+    gap: 8px;
+  }
+  .coupon-card-actions button{
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #faf7ef;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .coupon-card-actions button.danger{
+    color: #b3402c;
+    border-color: #e6c3ba;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🍴 Gowtham Mess — Admin</h1>
+    <div class="tag">Orders and coupons</div>
+  </div>
+  <button id="refresh-btn" onclick="refreshCurrentTab()">Refresh</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" id="tab-orders-btn" onclick="showTab('orders')">Orders</button>
+  <button class="tab-btn" id="tab-coupons-btn" onclick="showTab('coupons')">Coupons</button>
+</nav>
+
+<main>
+
+  <!-- ORDERS TAB -->
+  <div id="tab-orders">
+
+    <div class="stats" id="stats"></div>
+
+    <div id="loading">Loading orders…</div>
+    <div id="error" style="display:none;"></div>
+    <div id="empty" style="display:none;">No orders yet.</div>
+    <div id="order-list"></div>
+
+  </div>
+
+  <!-- COUPONS TAB -->
+  <div id="tab-coupons" style="display:none;">
+
+    <div class="coupon-form-card">
+
+      <h3>Create a coupon</h3>
+
+      <div class="coupon-form-grid">
+
+        <input type="text" id="new-coupon-code" placeholder="CODE (e.g. WELCOME10)">
+
+        <select id="new-coupon-type">
+          <option value="percent">Percent off (%)</option>
+          <option value="flat">Flat amount off (₹)</option>
+        </select>
+
+        <input type="number" id="new-coupon-value" placeholder="Discount value" min="0">
+
+        <input type="number" id="new-coupon-max-discount" placeholder="Max discount ₹ (percent coupons only, optional)" min="0">
+
+        <input type="number" id="new-coupon-min-order" placeholder="Minimum order ₹ (optional)" min="0">
+
+        <input type="number" id="new-coupon-usage-limit" placeholder="Usage limit (optional)" min="1">
+
+        <input type="date" id="new-coupon-expiry" placeholder="Expiry date (optional)">
+
+      </div>
+
+      <div id="coupon-form-error" class="form-error"></div>
+
+      <button onclick="createCoupon()">Add Coupon</button>
+
+    </div>
+
+    <div id="coupons-loading">Loading coupons…</div>
+    <div id="coupons-error" style="display:none;"></div>
+    <div id="coupons-empty" style="display:none;">No coupons yet — create one above.</div>
+    <div id="coupon-list"></div>
+
+  </div>
+
+</main>
+
+<script>
+async function loadOrders(){
+  const list = document.getElementById("order-list");
+  const loading = document.getElementById("loading");
+  const errorBox = document.getElementById("error");
+  const empty = document.getElementById("empty");
+  const stats = document.getElementById("stats");
+
+  loading.style.display = "block";
+  errorBox.style.display = "none";
+  empty.style.display = "none";
+  list.innerHTML = "";
+  stats.innerHTML = "";
+
+  try{
+    const res = await fetch("/api/admin/orders");
+    if(!res.ok){
+      throw new Error("Server returned " + res.status);
+    }
+    const orders = await res.json();
+
+    loading.style.display = "none";
+
+    if(orders.length === 0){
+      empty.style.display = "block";
+      return;
+    }
+
+    const today = new Date().toDateString();
+    const todaysOrders = orders.filter(o => new Date(o.created_at).toDateString() === today);
+    const todaysRevenue = todaysOrders.reduce((sum, o) => sum + Number(o.total), 0);
+    const pendingCount = orders.filter(o => o.payment_status !== "Paid ✅").length;
+
+    stats.innerHTML = `
+      <div class="stat-card">
+        <div class="label">Orders Today</div>
+        <div class="value">${todaysOrders.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Revenue Today</div>
+        <div class="value">₹${todaysRevenue}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pending Payment</div>
+        <div class="value">${pendingCount}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Orders</div>
+        <div class="value">${orders.length}</div>
+      </div>
+    `;
+
+    orders.forEach(order => {
+      const isPaid = order.payment_status === "Paid ✅";
+      const card = document.createElement("div");
+      card.className = "order-card";
+
+      const itemRows = order.items.map(it => `
+        <tr>
+          <td>${it.item_name}</td>
+          <td>${it.qty}</td>
+          <td>₹${it.price}</td>
+        </tr>
+      `).join("");
+
+      card.innerHTML = `
+        <div class="order-head" onclick="this.nextElementSibling.classList.toggle('open')">
+          <div>
+            <div class="order-id">${order.order_no}</div>
+            <div class="order-meta">${order.customer_name} • ${new Date(order.created_at).toLocaleString("en-IN")}</div>
+          </div>
+          <span class="badge ${isPaid ? "paid" : "pending"}">${order.payment_status}</span>
+          <div class="order-total">₹${order.total}</div>
+        </div>
+        <div class="order-body">
+          <div class="detail-grid">
+            <div><b>Phone:</b> ${order.phone}</div>
+            <div><b>Email:</b> ${order.email || "—"}</div>
+            <div><b>Delivery:</b> ${order.delivery_type}</div>
+            <div><b>Address / Table:</b> ${order.address || "—"}</div>
+            <div><b>Payment method:</b> ${order.payment_method}</div>
+            <div><b>Razorpay payment ID:</b> ${order.razorpay_payment_id || "—"}</div>
+            <div><b>Subtotal:</b> ₹${order.subtotal != null ? order.subtotal : order.total}</div>
+            <div><b>Coupon:</b> ${order.coupon_code ? `${order.coupon_code} (−₹${order.discount_amount || 0})` : "—"}</div>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+
+  } catch(err){
+    loading.style.display = "none";
+    errorBox.style.display = "block";
+    errorBox.textContent = "Could not load orders: " + err.message;
+  }
+}
+
+loadOrders();
+
+/* ===================== TABS ===================== */
+
+function showTab(tab){
+
+  const ordersTab = document.getElementById("tab-orders");
+  const couponsTab = document.getElementById("tab-coupons");
+  const ordersBtn = document.getElementById("tab-orders-btn");
+  const couponsBtn = document.getElementById("tab-coupons-btn");
+
+  if(tab === "coupons"){
+    ordersTab.style.display = "none";
+    couponsTab.style.display = "block";
+    ordersBtn.classList.remove("active");
+    couponsBtn.classList.add("active");
+    loadCoupons();
+  } else {
+    couponsTab.style.display = "none";
+    ordersTab.style.display = "block";
+    couponsBtn.classList.remove("active");
+    ordersBtn.classList.add("active");
+  }
+
+}
+
+function refreshCurrentTab(){
+  const couponsTab = document.getElementById("tab-coupons");
+  if(couponsTab.style.display !== "none"){
+    loadCoupons();
+  } else {
+    loadOrders();
+  }
+}
+
+/* ===================== COUPONS ===================== */
+
+async function loadCoupons(){
+
+  const list = document.getElementById("coupon-list");
+  const loading = document.getElementById("coupons-loading");
+  const errorBox = document.getElementById("coupons-error");
+  const empty = document.getElementById("coupons-empty");
+
+  loading.style.display = "block";
+  errorBox.style.display = "none";
+  empty.style.display = "none";
+  list.innerHTML = "";
+
+  try{
+
+    const res = await fetch("/api/coupons");
+    if(!res.ok){
+      throw new Error("Server returned " + res.status);
+    }
+
+    const coupons = await res.json();
+    loading.style.display = "none";
+
+    if(coupons.length === 0){
+      empty.style.display = "block";
+      return;
+    }
+
+    coupons.forEach(coupon => {
+
+      const card = document.createElement("div");
+      card.className = "coupon-card";
+
+      const discountLabel = coupon.discount_type === "percent"
+        ? `${coupon.discount_value}% off${coupon.max_discount ? ` (max ₹${coupon.max_discount})` : ""}`
+        : `₹${coupon.discount_value} off`;
+
+      const usageLabel = coupon.usage_limit
+        ? `${coupon.used_count} / ${coupon.usage_limit} used`
+        : `${coupon.used_count} used`;
+
+      const expiryLabel = coupon.expiry_date
+        ? new Date(coupon.expiry_date).toLocaleDateString("en-IN")
+        : "No expiry";
+
+      card.innerHTML = `
+        <div class="coupon-card-main">
+          <div>
+            <div class="coupon-code">${coupon.code}</div>
+            <div class="coupon-meta">${discountLabel} • Min order ₹${coupon.min_order_amount || 0} • ${usageLabel} • Expires: ${expiryLabel}</div>
+          </div>
+          <span class="badge ${coupon.active ? "paid" : "pending"}">${coupon.active ? "Active" : "Disabled"}</span>
+        </div>
+        <div class="coupon-card-actions">
+          <button onclick="toggleCouponActive('${coupon._id}', ${!coupon.active})">${coupon.active ? "Disable" : "Enable"}</button>
+          <button class="danger" onclick="deleteCoupon('${coupon._id}')">Delete</button>
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+
+  } catch(err){
+    loading.style.display = "none";
+    errorBox.style.display = "block";
+    errorBox.textContent = "Could not load coupons: " + err.message;
+  }
+
+}
+
+async function createCoupon(){
+
+  const errorBox = document.getElementById("coupon-form-error");
+  errorBox.style.display = "none";
+  errorBox.textContent = "";
+
+  const code = document.getElementById("new-coupon-code").value.trim();
+  const discount_type = document.getElementById("new-coupon-type").value;
+  const discount_value = parseFloat(document.getElementById("new-coupon-value").value);
+  const max_discount = document.getElementById("new-coupon-max-discount").value;
+  const min_order_amount = document.getElementById("new-coupon-min-order").value;
+  const usage_limit = document.getElementById("new-coupon-usage-limit").value;
+  const expiry_date = document.getElementById("new-coupon-expiry").value;
+
+  if(!code || !discount_type || isNaN(discount_value)){
+    errorBox.textContent = "Code, type, and discount value are required.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  try{
+
+    const res = await fetch("/api/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        discount_type,
+        discount_value,
+        max_discount: max_discount ? parseFloat(max_discount) : undefined,
+        min_order_amount: min_order_amount ? parseFloat(min_order_amount) : undefined,
+        usage_limit: usage_limit ? parseInt(usage_limit) : undefined,
+        expiry_date: expiry_date || undefined
+      })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok){
+      errorBox.textContent = data.error || "Could not create coupon.";
+      errorBox.style.display = "block";
+      return;
+    }
+
+    // Clear the form
+    document.getElementById("new-coupon-code").value = "";
+    document.getElementById("new-coupon-value").value = "";
+    document.getElementById("new-coupon-max-discount").value = "";
+    document.getElementById("new-coupon-min-order").value = "";
+    document.getElementById("new-coupon-usage-limit").value = "";
+    document.getElementById("new-coupon-expiry").value = "";
+
+    loadCoupons();
+
+  } catch(err){
+    errorBox.textContent = "Could not reach the server: " + err.message;
+    errorBox.style.display = "block";
+  }
+
+}
+
+async function toggleCouponActive(id, newActiveState){
+
+  try{
+    const res = await fetch("/api/coupons/" + id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active: newActiveState })
+    });
+
+    if(!res.ok){
+      const data = await res.json();
+      alert(data.error || "Could not update coupon.");
+      return;
+    }
+
+    loadCoupons();
+
+  } catch(err){
+    alert("Could not reach the server: " + err.message);
+  }
+
+}
+
+async function deleteCoupon(id){
+
+  if(!confirm("Delete this coupon? This cannot be undone.")){
+    return;
+  }
+
+  try{
+    const res = await fetch("/api/coupons/" + id, { method: "DELETE" });
+
+    if(!res.ok){
+      const data = await res.json();
+      alert(data.error || "Could not delete coupon.");
+      return;
+    }
+
+    loadCoupons();
+
+  } catch(err){
+    alert("Could not reach the server: " + err.message);
+  }
+
+}
+</script>
+
+</body>
+</html>
