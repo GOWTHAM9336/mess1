@@ -406,13 +406,15 @@ async function loadOrders(){
       const card = document.createElement("div");
       card.className = "order-card";
 
-      const itemRows = order.items.map(it => `
-        <tr>
-          <td>${it.item_name}</td>
-          <td>${it.qty}</td>
-          <td>₹${it.price}</td>
-        </tr>
-      `).join("");
+     const items = Array.isArray(order.items) ? order.items : [];
+
+const itemRows = items.map(it => `
+<tr>
+  <td>${it.item_name}</td>
+  <td>${it.qty}</td>
+  <td>₹${it.price}</td>
+</tr>
+`).join("");
 
       card.innerHTML = `
         <div class="order-head" onclick="this.nextElementSibling.classList.toggle('open')">

@@ -1,6 +1,6 @@
 const express = require("express");
 const Coupon = require("../models/Coupon");
-const adminAuth = require("../middleware/adminAuth");
+
 
 const router = express.Router();
 
@@ -100,7 +100,7 @@ router.post("/apply", async (req, res) => {
 });
 
 // Admin: list all coupons
-router.get("/", adminAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const coupons = await Coupon.find({}).sort({ created_at: -1 });
     res.json(coupons);
@@ -111,7 +111,7 @@ router.get("/", adminAuth, async (req, res) => {
 });
 
 // Admin: create a coupon
-router.post("/", adminAuth, async (req, res) => {
+router.post("/", async (req, res) => {
   const {
     code,
     discount_type,
@@ -160,7 +160,7 @@ router.post("/", adminAuth, async (req, res) => {
 });
 
 // Admin: update a coupon (e.g. toggle active, adjust limits)
-router.put("/:id", adminAuth, async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const updates = { ...req.body };
     if (updates.code) updates.code = updates.code.toUpperCase().trim();
@@ -179,7 +179,7 @@ router.put("/:id", adminAuth, async (req, res) => {
 });
 
 // Admin: delete a coupon
-router.delete("/:id", adminAuth, async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Coupon.findByIdAndDelete(req.params.id);
 
