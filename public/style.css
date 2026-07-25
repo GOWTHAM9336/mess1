@@ -3258,3 +3258,34 @@ footer{
     font-weight:600;
     margin:4px 0;
 }
+
+
+.coupon-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.coupon-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.coupon-box button {
+    width: 100%;
+    padding: 10px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.coupon-box button:hover {
+    background: #218838;
+}
