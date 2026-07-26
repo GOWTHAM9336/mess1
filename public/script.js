@@ -10,6 +10,77 @@ let currentPaymentVerified = false;
 let currentRazorpayOrderId = null;
 let currentRazorpayPaymentId = null;
 
+/* ===================== MENU CARD QTY (+/-) ===================== */
+
+// The menu cards show a small quantity number next to each item
+// (id="qty-<Item Name>"). Because some ids in the markup replace
+// spaces with dashes and some don't, we look for both forms and
+// update every match (a couple of item names appear on more than
+// one card, e.g. "Dosa" in both Morning and Night).
+function getQtyElements(name){
+
+    let idPlain = "qty-" + name;
+    let idDashed = "qty-" + name.replace(/\s+/g, "-");
+
+    let selector = "#" + CSS.escape(idPlain);
+
+    if(idDashed !== idPlain){
+        selector += ", #" + CSS.escape(idDashed);
+    }
+
+    return document.querySelectorAll(selector);
+}
+
+function updateQtyDisplay(name){
+
+    let count = cart.filter(c => c.item === name).length;
+
+    getQtyElements(name).forEach(el => {
+        el.innerText = count;
+    });
+
+}
+
+function resetAllQtyDisplays(){
+
+    document.querySelectorAll('[id^="qty-"]').forEach(el => {
+        el.innerText = "0";
+    });
+
+}
+
+function increaseQtyByName(name, price){
+
+    cart.push({ item: name, price: price });
+
+    updateCart();
+    updateQtyDisplay(name);
+
+}
+
+function decreaseQtyByName(name, price){
+
+    // Remove the most recently added unit of this item, if any is in the cart.
+    let idx = -1;
+
+    for(let i = cart.length - 1; i >= 0; i--){
+        if(cart[i].item === name){
+            idx = i;
+            break;
+        }
+    }
+
+    if(idx === -1){
+        return;
+    }
+
+    cart.splice(idx, 1);
+
+    updateCart();
+    updateQtyDisplay(name);
+
+}
+
 function addToCart(item, price){
 
     cart.push({
@@ -20,6 +91,7 @@ function addToCart(item, price){
     total += price;
 
     updateCart();
+    updateQtyDisplay(item);
 
     alert(item + " added to cart");
 
@@ -286,12 +358,12 @@ function showBill(){
 
     let today = new Date();
 
-let day = String(today.getDate()).padStart(2, '0');
-let month = String(today.getMonth() + 1).padStart(2, '0');
-let year = today.getFullYear();
+    let day = String(today.getDate()).padStart(2, '0');
+    let month = String(today.getMonth() + 1).padStart(2, '0');
+    let year = today.getFullYear();
 
-document.getElementById("bill-date").innerText =
-`${day}/${month}/${year}`;
+    document.getElementById("bill-date").innerText =
+    `${day}/${month}/${year}`;
 
     let billItems =
     document.getElementById("bill-items");
@@ -337,29 +409,29 @@ document.getElementById("bill-date").innerText =
 
     /* PAYMENT METHOD */
 
-let paymentMethod =
-document.querySelector(
-'input[name="payment"]:checked'
-).value;
+    let paymentMethod =
+    document.querySelector(
+    'input[name="payment"]:checked'
+    ).value;
 
-let transactionId =
-document.getElementById("transaction-id").value;
+    let transactionId =
+    document.getElementById("transaction-id").value;
 
-/* CREATE PAYMENT ROW */
+    /* CREATE PAYMENT ROW */
 
-let paymentRow =
-document.createElement("tr");
+    let paymentRow =
+    document.createElement("tr");
 
-paymentRow.innerHTML = `
-<td colspan="3">
-<b>Payment:</b> ${paymentMethod}
-<br>
-<b>Transaction ID:</b>
-${transactionId || "Cash Payment"}
-</td>
-`;
+    paymentRow.innerHTML = `
+    <td colspan="3">
+    <b>Payment:</b> ${paymentMethod}
+    <br>
+    <b>Transaction ID:</b>
+    ${transactionId || "Cash Payment"}
+    </td>
+    `;
 
-billItems.appendChild(paymentRow);
+    billItems.appendChild(paymentRow);
 
     document.getElementById("bill-popup").style.display =
     "flex";
@@ -371,18 +443,22 @@ function closeBill(){
     document.getElementById("bill-popup").style.display = "none";
 
     // Show Call & WhatsApp buttons again
-    document.querySelector(".floating-icons").style.display = "flex";
+    let floatingIcons = document.querySelector(".floating-icons");
+    if(floatingIcons) floatingIcons.style.display = "flex";
+
 }
 
 function printBill(){
 
     // Hide buttons before printing
-    document.querySelector(".floating-icons").style.display = "none";
+    let floatingIcons = document.querySelector(".floating-icons");
+    if(floatingIcons) floatingIcons.style.display = "none";
 
     window.print();
 
     // Show buttons after printing
-    document.querySelector(".floating-icons").style.display = "flex";
+    if(floatingIcons) floatingIcons.style.display = "flex";
+
 }
 
 function placeOrder(){
@@ -416,9 +492,9 @@ function scrollMenu(){
 function sendEmail(){
 
     if (cart.length === 0) {
-    alert("Cart is Empty!");
-    return;
-}
+        alert("Cart is Empty!");
+        return;
+    }
 
     let customerName = document.getElementById("name").value;
 
@@ -446,18 +522,67 @@ function sendEmail(){
     `mailto:${email}?subject=${subject}&body=${body}`;
 
 }
-function showMenu(sectionId){
 
-    document.getElementById(sectionId).scrollIntoView({
+/* ===================== MENU CATEGORY / SEARCH ===================== */
+
+function showMenu(menuId){
+
+    document.querySelectorAll(".menu-box").forEach(menu => {
+        menu.style.display = "none";
+    });
+
+    document.getElementById(menuId).style.display = "block";
+
+    document.getElementById(menuId).scrollIntoView({
         behavior:"smooth"
     });
 
 }
 
-function closeBill(){
+function showAllMenu(){
 
-    document.getElementById("bill-popup").style.display =
-    "none";
+    document.querySelectorAll(".menu-box").forEach(menu => {
+        menu.style.display = "block";
+    });
+
+    document.getElementById("menu").scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+function searchMenu(){
+
+    let input =
+    document.getElementById("searchInput")
+    .value.toLowerCase().trim();
+
+    document.querySelectorAll(".menu-box")
+    .forEach(menu => {
+
+        menu.style.display = "block";
+
+    });
+
+    document.querySelectorAll(".card")
+    .forEach(card => {
+
+        let titleEl = card.querySelector("h4");
+        let name = titleEl ? titleEl.innerText.toLowerCase() : "";
+
+        card.style.display =
+        name.includes(input)
+        ? "block"
+        : "none";
+
+    });
+
+    // Nothing typed — go back to the collapsed (no category open) view
+    if(input === ""){
+        document.querySelectorAll(".menu-box").forEach(menu => {
+            menu.style.display = "none";
+        });
+    }
 
 }
 
@@ -507,6 +632,9 @@ function applyLoggedInUI(user){
     document.getElementById("login-popup").style.display = "none";
     document.getElementById("user-name").innerText = user.full_name;
     document.getElementById("floating-icons").style.display = "flex";
+
+    localStorage.setItem("gowthamUser", user.full_name);
+
 }
 
 async function checkAuthOnLoad(){
@@ -622,6 +750,7 @@ async function loginUser(){
 function logoutUser(){
 
     localStorage.removeItem("gm_token");
+    localStorage.removeItem("gowthamUser");
     currentProfileUser = null;
 
     document.getElementById("floating-icons").style.display = "none";
@@ -721,6 +850,7 @@ async function saveProfile(){
 
         currentProfileUser = data.user;
         document.getElementById("user-name").innerText = data.user.full_name;
+        localStorage.setItem("gowthamUser", data.user.full_name);
 
         document.getElementById("profile-view-name").innerText = data.user.full_name;
         document.getElementById("profile-view-email").innerText = data.user.email;
@@ -783,531 +913,16 @@ async function submitChangePassword(){
 
 }
 
-/* SHOW QR */
+/* SHOW QR (toggle) */
 
 function showQR(){
-
-    document.getElementById("qr-box")
-    .style.display = "block";
-
-    document.getElementById("qr-amount")
-    .innerText = total;
-
-}
-
-/* PAYMENT SUCCESS */
-
-function paymentSuccess(){
-
-    document.getElementById("payment-popup")
-    .style.display = "flex";
-
-}
-
-/* CLOSE POPUP */
-
-function closePaymentPopup(){
-
-    document.getElementById("payment-popup")
-    .style.display = "none";
-
-}
-
-/* CONFIRM ORDER */
-
-function confirmOrder(){
-
-    
-
-    let username =
-    localStorage.getItem("gowthamUser")
-    || "Customer";
-
-    document.getElementById("success-user")
-    .innerText =
-    `Thank You ${username}`;
-
-    document.getElementById(
-        "order-success-popup"
-    ).style.display = "flex";
-
-}
-
-/* CLOSE SUCCESS POPUP */
-function closeSuccessPopup(){
-
-    /* CLOSE SUCCESS POPUP */
-
-    document.getElementById(
-        "order-success-popup"
-    ).style.display = "none";
-
-    /* CLEAR CART */
-
-    cart = [];
-
-    total = 0;
-
-    updateCart();
-
-    /* CLEAR BILL */
-
-    document.getElementById(
-        "bill-items"
-    ).innerHTML = "";
-
-    document.getElementById(
-        "bill-total"
-    ).innerText = "0";
-
-    /* RESET QR */
-
-    document.getElementById(
-        "qr-amount"
-    ).innerText = "0";
-
-    document.getElementById(
-        "transaction-id"
-    ).value = "";
-
-    document.getElementById(
-        "qr-box"
-    ).style.display = "none";
-
-    /* RESET PAYMENT VERIFICATION STATE */
-
-    currentPaymentVerified = false;
-    currentRazorpayOrderId = null;
-    currentRazorpayPaymentId = null;
-
-    /* RESET COUPON STATE */
-
-    removeCoupon();
-
-    /* CLOSE CART PROPERLY */
-
-    document.getElementById(
-        "cart"
-    ).classList.remove("active");
-
-    /* RESET FORM */
-
-    document.getElementById("name").value = "";
-
-    document.getElementById("phone").value = "";
-
-    document.getElementById("address").value = "";
-
-    /* READY FOR NEXT CUSTOMER */
-
-    alert("Ready For New Order 🍴");
-
-}
-
-/* REMOVE ITEM */
-
-function removeItem(index){
-
-    cart.splice(index,1);
-
-    updateCart();
-
-}
-
-/* INCREASE QUANTITY */
-
-function increaseQty(index){
-
-    let item = cart[index];
-
-    cart.push({
-        item:item.item,
-        price:item.price
-    });
-
-    updateCart();
-
-}
-
-/* DECREASE QUANTITY */
-
-function decreaseQty(index){
-
-    cart.splice(index,1);
-
-    updateCart();
-
-}
-
-/* PAYTM */
-
-function payWithPaytm(){
-
-    if(cart.length === 0){
-        alert("Please add items to cart first.");
-        return;
-    }
-
-    window.location.href =
-    `paytmmp://pay?pa=9080149926@ptsbi&pn=GowthamMess&am=${payableTotal}&cu=INR`;
-}
-
-function payWithGpay(){
-
-    if(cart.length === 0){
-        alert("Please add items to cart first.");
-        return;
-    }
-
-    window.location.href =
-    `tez://upi/pay?pa=m.gowthammanimalan8383@oksbi&pn=GowthamMess&am=${payableTotal}&cu=INR`;
-}
-
-function payWithPhonepe(){
-
-    if(cart.length === 0){
-        alert("Please add items to cart first.");
-        return;
-    }
-
-    window.location.href =
-    `phonepe://pay?pa=9080149926@ybl&pn=GowthamMess&am=${payableTotal}&cu=INR`;
-}
-
-function showMenu(category){
-
-    const menus = document.querySelectorAll('.menu-category');
-
-    menus.forEach(menu=>{
-        menu.style.display='none';
-    });
-
-    document.getElementById(category).style.display='block';
-
-    document.getElementById(category).scrollIntoView({
-        behavior:'smooth'
-    });
-}
-
-function showAllMenu(){
-
-    document.querySelectorAll('.menu-category')
-    .forEach(menu=>{
-        menu.style.display='block';
-    });
-
-    document.getElementById('menu').scrollIntoView({
-        behavior:'smooth'
-    });
-}
-
-
-
-
-// Show selected menu only
-function showMenu(menuId){
-
-    document.querySelectorAll(".menu-box").forEach(menu => {
-
-        menu.style.display = "none";
-
-    });
-
-    document.getElementById(menuId).style.display = "block";
-
-    document.getElementById(menuId).scrollIntoView({
-
-        behavior:"smooth"
-
-    });
-
-}
-
-window.onload = function(){
-
-    // Hide all menus
-    document.querySelectorAll(".menu-box").forEach(menu => {
-        menu.style.display = "none";
-    });
-
-    checkAuthOnLoad();
-}
-function toggleOrderMenu(){
-
-    const menu = document.getElementById("order-menu");
-
-    if(!menu){
-        console.log("order-menu not found");
-        return;
-    }
-
-    menu.style.display =
-    menu.style.display === "block"
-    ? "none"
-    : "block";
-}
-
-function showOrderDetails() {
-
-    document.getElementById("orderUser").innerText =
-        document.getElementById("name").value || "Not Entered";
-
-    document.getElementById("orderPhone").innerText =
-        document.getElementById("phone").value || "Not Entered";
-
-    document.getElementById("orderAddress").innerText =
-        document.getElementById("address").value || "Not Entered";
-
-    let orderItems = document.getElementById("orderItems");
-
-    orderItems.innerHTML = "";
-
-    cart.forEach(item => {
-
-        orderItems.innerHTML += `
-            <p>
-                ${item.item} - ₹${item.price}
-            </p>
-        `;
-
-    });
-
-    document.getElementById("orderTotal").innerText = total;
-
-    document.getElementById("orderDetailsPopup").style.display = "flex";
-}
-
-function showDeliveryStatus(){
-
-    document.getElementById("deliveryStatusPopup")
-    .style.display = "flex";
-}
-
-function showPaymentDetails(){
-
-    let payment =
-    document.querySelector(
-    'input[name="payment"]:checked'
-    ).value;
-
-    document.getElementById("paymentUser").innerText =
-    document.getElementById("name").value;
-
-    document.getElementById("paymentTotal").innerText =
-    total;
-
-    document.getElementById("paymentMethod").innerText =
-    payment;
-
-    document.getElementById("paymentDetailsPopup")
-    .style.display = "flex";
-}
-
-function closePopup(id){
-
-    document.getElementById(id)
-    .style.display = "none";
-}
-
-function searchMenu(){
-
-    let input =
-    document.getElementById("searchInput")
-    .value.toLowerCase().trim();
-
-    document.querySelectorAll(".menu-box")
-    .forEach(menu => {
-
-        menu.style.display = "block";
-
-    });
-
-    document.querySelectorAll(".card")
-    .forEach(card => {
-
-        let titleEl = card.querySelector("h4");
-        let name = titleEl ? titleEl.innerText.toLowerCase() : "";
-
-        card.style.display =
-        name.includes(input)
-        ? "block"
-        : "none";
-
-    });
-
-    // Nothing typed — go back to the collapsed (no category open) view
-    if(input === ""){
-        document.querySelectorAll(".menu-box").forEach(menu => {
-            menu.style.display = "none";
-        });
-    }
-
-}
-
-function showTracking(){
-
-    document.getElementById(
-        "trackingPopup"
-    ).style.display = "flex";
-
-}
-
-function startTracking(){
-
-    document.getElementById("track2")
-    .classList.remove("active");
-
-    document.getElementById("track3")
-    .classList.remove("active");
-
-    document.getElementById("track4")
-    .classList.remove("active");
-
-    setTimeout(function(){
-
-        document.getElementById("track2")
-        .classList.add("active");
-
-    },3000);
-
-    setTimeout(function(){
-
-        document.getElementById("track3")
-        .classList.add("active");
-
-    },6000);
-
-    setTimeout(function(){
-
-        document.getElementById("track4")
-        .classList.add("active");
-
-        alert("🎉 Order Delivered");
-
-    },9000);
-
-}
-
-function confirmOrder() {
-
-    if (cart.length === 0) {
-    alert("🛒 Cart is Empty! Please add items.");
-    return;
-}
-
-    let customerName =
-    document.getElementById("name").value;
-
-    let phone =
-    document.getElementById("phone").value;
-
-    let email =
-    document.getElementById("user_email").value;
-
-    let address =
-    document.getElementById("address").value;
-
-    if (
-    customerName === "" ||
-    phone === "" ||
-    email === "" ||
-    address === ""
-) {
-    alert("🚚 Delivery Details are mandatory. Please fill all details.");
-    return;
-}
-
-    let orderTime =
-    new Date().toLocaleString("en-IN", {
-        dateStyle: "short",
-        timeStyle: "medium"
-    });
-
-    let payment =
-    document.querySelector(
-        'input[name="payment"]:checked'
-    );
-
-    let paymentMethod =
-    payment ? payment.value : "Cash";
-
-    if(paymentMethod === "Online" && !currentPaymentVerified){
-        alert("⚠️ Please complete card payment before confirming your order.");
-        return;
-    }
-
-    let paymentStatus =
-    paymentMethod === "Online" && currentPaymentVerified
-    ? "Paid ✅"
-    : "Pending";
-
-    let orderItems = "";
-
-    cart.forEach(item => {
-        orderItems +=
-        `${item.item} - ₹${item.price}\n`;
-    });
-
-    emailjs.send(
-        "gowtham_mess",
-        "template_y0au8ao",
-        {
-            name: customerName,
-            phone: phone,
-            email: email,
-            address: address,
-            time: orderTime,
-            payment_method: paymentMethod,
-            payment_status: paymentStatus,
-            items: orderItems,
-            total: payableTotal,
-            coupon: appliedCoupon ? appliedCoupon.code : "None"
-        }
-    )
-
-    .then(function(response){
-
-        alert("Order Sent Successfully!");
-
-        saveOrderToServer(
-            customerName,
-            phone,
-            email,
-            address,
-            paymentMethod,
-            paymentStatus
-        );
-
-        document.getElementById(
-            "success-user"
-        ).innerText =
-        `Thank You ${customerName}`;
-
-        document.getElementById(
-            "order-success-popup"
-        ).style.display = "flex";
-
-    })
-
-    .catch(function(error){
-
-        console.log(error);
-
-        alert("Email Failed");
-
-    });
-
-}
-function showQR() {
 
     let qrBox = document.getElementById("qr-box");
 
     // Toggle QR Show/Hide
-    if (qrBox.style.display === "block") {
-
+    if(qrBox.style.display === "block"){
         qrBox.style.display = "none";
         return;
-
     }
 
     qrBox.style.display = "block";
@@ -1331,7 +946,26 @@ function showQR() {
             height: 250
         }
     );
+
 }
+
+/* PAYMENT SUCCESS (legacy popup, kept for compatibility) */
+
+function paymentSuccess(){
+
+    let popup = document.getElementById("payment-popup");
+    if(popup) popup.style.display = "flex";
+
+}
+
+function closePaymentPopup(){
+
+    let popup = document.getElementById("payment-popup");
+    if(popup) popup.style.display = "none";
+
+}
+
+/* ===================== RAZORPAY (CARD) PAYMENT ===================== */
 
 async function payNow(){
 
@@ -1458,6 +1092,385 @@ async function payNow(){
 
 }
 
+/* PAYTM / GPAY / PHONEPE DEEP LINKS */
+
+function payWithPaytm(){
+
+    if(cart.length === 0){
+        alert("Please add items to cart first.");
+        return;
+    }
+
+    window.location.href =
+    `paytmmp://pay?pa=9080149926@ptsbi&pn=GowthamMess&am=${payableTotal}&cu=INR`;
+}
+
+function payWithGpay(){
+
+    if(cart.length === 0){
+        alert("Please add items to cart first.");
+        return;
+    }
+
+    window.location.href =
+    `tez://upi/pay?pa=m.gowthammanimalan8383@oksbi&pn=GowthamMess&am=${payableTotal}&cu=INR`;
+}
+
+function payWithPhonepe(){
+
+    if(cart.length === 0){
+        alert("Please add items to cart first.");
+        return;
+    }
+
+    window.location.href =
+    `phonepe://pay?pa=9080149926@ybl&pn=GowthamMess&am=${payableTotal}&cu=INR`;
+}
+
+/* ===================== ORDER MENU SIDEBAR / POPUPS ===================== */
+
+function toggleOrderMenu(){
+
+    const menu = document.getElementById("order-menu");
+
+    if(!menu){
+        console.log("order-menu not found");
+        return;
+    }
+
+    menu.style.display =
+    menu.style.display === "block"
+    ? "none"
+    : "block";
+}
+
+function showOrderDetails() {
+
+    document.getElementById("orderUser").innerText =
+        document.getElementById("name").value || "Not Entered";
+
+    document.getElementById("orderPhone").innerText =
+        document.getElementById("phone").value || "Not Entered";
+
+    document.getElementById("orderAddress").innerText =
+        document.getElementById("address").value || "Not Entered";
+
+    let orderItems = document.getElementById("orderItems");
+
+    orderItems.innerHTML = "";
+
+    cart.forEach(item => {
+
+        orderItems.innerHTML += `
+            <p>
+                ${item.item} - ₹${item.price}
+            </p>
+        `;
+
+    });
+
+    document.getElementById("orderTotal").innerText = total;
+
+    document.getElementById("orderDetailsPopup").style.display = "flex";
+}
+
+function showDeliveryStatus(){
+
+    document.getElementById("deliveryStatusPopup")
+    .style.display = "flex";
+}
+
+function showPaymentDetails(){
+
+    let payment =
+    document.querySelector(
+    'input[name="payment"]:checked'
+    ).value;
+
+    document.getElementById("paymentUser").innerText =
+    document.getElementById("name").value;
+
+    document.getElementById("paymentTotal").innerText =
+    total;
+
+    document.getElementById("paymentMethod").innerText =
+    payment;
+
+    document.getElementById("paymentDetailsPopup")
+    .style.display = "flex";
+}
+
+function closePopup(id){
+
+    document.getElementById(id)
+    .style.display = "none";
+}
+
+function showTracking(){
+
+    document.getElementById(
+        "trackingPopup"
+    ).style.display = "flex";
+
+}
+
+function startTracking(){
+
+    document.getElementById("track2")
+    .classList.remove("active");
+
+    document.getElementById("track3")
+    .classList.remove("active");
+
+    document.getElementById("track4")
+    .classList.remove("active");
+
+    setTimeout(function(){
+
+        document.getElementById("track2")
+        .classList.add("active");
+
+    },3000);
+
+    setTimeout(function(){
+
+        document.getElementById("track3")
+        .classList.add("active");
+
+    },6000);
+
+    setTimeout(function(){
+
+        document.getElementById("track4")
+        .classList.add("active");
+
+        alert("🎉 Order Delivered");
+
+    },9000);
+
+}
+
+/* ===================== CONFIRM ORDER (sends email + saves order) ===================== */
+
+function confirmOrder() {
+
+    if (cart.length === 0) {
+        alert("🛒 Cart is Empty! Please add items.");
+        return;
+    }
+
+    let customerName =
+    document.getElementById("name").value;
+
+    let phone =
+    document.getElementById("phone").value;
+
+    let email =
+    document.getElementById("user_email").value;
+
+    let address =
+    document.getElementById("address").value;
+
+    if (
+        customerName === "" ||
+        phone === "" ||
+        email === "" ||
+        address === ""
+    ) {
+        alert("🚚 Delivery Details are mandatory. Please fill all details.");
+        return;
+    }
+
+    let orderTime =
+    new Date().toLocaleString("en-IN", {
+        dateStyle: "short",
+        timeStyle: "medium"
+    });
+
+    let payment =
+    document.querySelector(
+        'input[name="payment"]:checked'
+    );
+
+    let paymentMethod =
+    payment ? payment.value : "Cash";
+
+    if(paymentMethod === "Online" && !currentPaymentVerified){
+        alert("⚠️ Please complete card payment before confirming your order.");
+        return;
+    }
+
+    let paymentStatus =
+    paymentMethod === "Online" && currentPaymentVerified
+    ? "Paid ✅"
+    : "Pending";
+
+    let orderItems = "";
+
+    cart.forEach(item => {
+        orderItems +=
+        `${item.item} - ₹${item.price}\n`;
+    });
+
+    emailjs.send(
+        "gowtham_mess",
+        "template_y0au8ao",
+        {
+            name: customerName,
+            phone: phone,
+            email: email,
+            address: address,
+            time: orderTime,
+            payment_method: paymentMethod,
+            payment_status: paymentStatus,
+            items: orderItems,
+            total: payableTotal,
+            coupon: appliedCoupon ? appliedCoupon.code : "None"
+        }
+    )
+
+    .then(function(response){
+
+        alert("Order Sent Successfully!");
+
+        saveOrderToServer(
+            customerName,
+            phone,
+            email,
+            address,
+            paymentMethod,
+            paymentStatus
+        );
+
+        document.getElementById(
+            "success-user"
+        ).innerText =
+        `Thank You ${customerName}`;
+
+        document.getElementById(
+            "order-success-popup"
+        ).style.display = "flex";
+
+    })
+
+    .catch(function(error){
+
+        console.log(error);
+
+        alert("Email Failed");
+
+    });
+
+}
+
+/* CLOSE SUCCESS POPUP + RESET EVERYTHING FOR THE NEXT ORDER */
+
+function closeSuccessPopup(){
+
+    document.getElementById(
+        "order-success-popup"
+    ).style.display = "none";
+
+    /* CLEAR CART */
+
+    cart = [];
+    total = 0;
+
+    updateCart();
+    resetAllQtyDisplays();
+
+    /* CLEAR BILL */
+
+    document.getElementById(
+        "bill-items"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "bill-total"
+    ).innerText = "0";
+
+    /* RESET QR */
+
+    document.getElementById(
+        "qr-amount"
+    ).innerText = "0";
+
+    document.getElementById(
+        "transaction-id"
+    ).value = "";
+
+    document.getElementById(
+        "qr-box"
+    ).style.display = "none";
+
+    /* RESET PAYMENT VERIFICATION STATE */
+
+    currentPaymentVerified = false;
+    currentRazorpayOrderId = null;
+    currentRazorpayPaymentId = null;
+
+    /* RESET COUPON STATE */
+
+    removeCoupon();
+
+    /* CLOSE CART PROPERLY */
+
+    document.getElementById(
+        "cart"
+    ).classList.remove("active");
+
+    /* RESET FORM */
+
+    document.getElementById("name").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("address").value = "";
+
+    /* READY FOR NEXT CUSTOMER */
+
+    alert("Ready For New Order 🍴");
+
+}
+
+/* ===================== CART SIDEBAR ROW CONTROLS ===================== */
+
+function removeItem(index){
+
+    let item = cart[index];
+
+    cart.splice(index,1);
+
+    updateCart();
+
+    if(item) updateQtyDisplay(item.item);
+
+}
+
+function increaseQty(index){
+
+    let item = cart[index];
+
+    cart.push({
+        item:item.item,
+        price:item.price
+    });
+
+    updateCart();
+    updateQtyDisplay(item.item);
+
+}
+
+function decreaseQty(index){
+
+    let item = cart[index];
+
+    cart.splice(index,1);
+
+    updateCart();
+
+    if(item) updateQtyDisplay(item.item);
+
+}
+
 /* GROUP CART ITEMS FOR SAVING */
 
 function buildOrderItems(){
@@ -1544,4 +1557,35 @@ function generateOrderNumber() {
     localStorage.setItem("orderNo", orderNo);
 
     return String(orderNo).padStart(3, "0");
+}
+
+/* ===================== FAVORITE (❤) BUTTONS ===================== */
+/* Purely visual — toggles a highlighted heart. No onclick attribute is
+   in the markup, so we wire these up here via event delegation. */
+
+function initFavButtons(){
+
+    document.querySelectorAll(".fav-btn").forEach(btn => {
+
+        btn.addEventListener("click", function(){
+            this.classList.toggle("favorited");
+        });
+
+    });
+
+}
+
+/* ===================== PAGE LOAD ===================== */
+
+window.onload = function(){
+
+    // Hide all menu categories until one is picked (or "All Food" / search)
+    document.querySelectorAll(".menu-box").forEach(menu => {
+        menu.style.display = "none";
+    });
+
+    resetAllQtyDisplays();
+    initFavButtons();
+    checkAuthOnLoad();
+
 }
