@@ -99,9 +99,11 @@ body{
 
 .hero{
     height:90vh;
-    background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600&auto=format&fit=crop');
+   background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600&auto=format&fit=crop');
     background-size:cover;
     background-position:center;
+    background-repeat:no-repeat;
+    transition:background-image 1s ease-in-out;
 }
 
 .overlay{

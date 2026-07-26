@@ -1589,3 +1589,22 @@ window.onload = function(){
     checkAuthOnLoad();
 
 }
+
+const hero = document.querySelector(".hero");
+
+const backgrounds = [
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1920&q=80",
+  "https://media.istockphoto.com/id/1279763992/photo/healthy-food-for-lower-cholesterol-and-heart-care-shot-on-wooden-table.webp?a=1&b=1&s=612x612&w=0&k=20&c=ujC9Sg4-ck6wYZZH_WJ3a7pGFy-IJR5IWLe_FhsGXeU=",
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGZvb2R8ZW58MHx8MHx8fDA%3D"
+];
+let index = 0;
+
+function changeBackground() {
+    hero.style.backgroundImage = `url('${backgrounds[index]}')`;
+    index = (index + 1) % backgrounds.length;
+}
+
+changeBackground(); // First image
+setInterval(changeBackground, 5000); // Change every 5 seconds
